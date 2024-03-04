@@ -1,0 +1,32 @@
+const express = require('express')
+const data = require('../database/2024-spring-student-info.json')
+const studentInfo = express.Router()
+
+studentInfo.use(express.json());
+
+console.log(data, "this is our data")
+
+// Check/Return user device and IP Address
+function getLocation(req, res, next) {
+    req.userIp = req.headers['x-forwarded-for'] || req.socket.remoteAddress
+    req.userDevice = req.header('User-Agent')
+
+    next();
+}
+
+// GET  / to retrieve all the student-info
+studentInfo.get('/student-info', getLocation, (req, res) => {
+    const response = {
+        deviceAndIPAddress: {
+            ip: req.userIp,
+            device: req.userDevice
+        },
+        studentInfo: {
+            data
+        }
+    }
+
+    res.json(response)
+})
+
+module.exports = studentInfo
